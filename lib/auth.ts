@@ -1,11 +1,28 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { User } from "@/types"; // Adjust the import path as needed
 
 const prisma = new PrismaClient();
+
+declare module "next-auth" {
+  interface User {
+    id: string;
+    name: string | null;
+    email: string | null;
+    isAdmin: boolean;
+  }
+
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      isAdmin: boolean;
+    };
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -16,7 +33,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials): Promise<NextAuthUser | null> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing email or password");
         }
@@ -43,8 +60,14 @@ export const authOptions: NextAuthOptions = {
         if (!isPasswordValid) {
           throw new Error("Invalid password");
         }
-        // TODO To fix the error, add the following code to the authorize function in the lib/auth.ts file:
-        return user;
+
+        // Map PrismaUser to NextAuth.User
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+        };
       },
     }),
   ],
@@ -54,16 +77,16 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        token.isAdmin = (user as User).isAdmin;
+        token.isAdmin = user.isAdmin;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string | undefined;
-        session.user.isAdmin = token.isAdmin as boolean | undefined;
+        session.user.email = token.email as string | null;
+        session.user.name = token.name as string | null;
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },
@@ -76,13 +99,5 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
-
-declare module "next-auth" {
-  interface Session {
-    user: User & {
-      id: string;
-    };
-  }
-}
 
 export default authOptions;
