@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function SearchBar() {
-  const [query, setQuery] = useState("");
+interface SearchBarProps {
+  initialQuery?: string;
+}
+export const SearchBar: React.FC<SearchBarProps> = ({ initialQuery = "" }) => {
+  const [query, setQuery] = useState(initialQuery); // Use initialQuery to set the initial value of the state
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -31,4 +34,4 @@ export function SearchBar() {
       </div>
     </form>
   );
-}
+};

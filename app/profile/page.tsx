@@ -29,7 +29,10 @@ export default async function ProfilePage() {
         </div>
         <div>
           <h2 className="text-2xl font-semibold mb-4">Resume</h2>
-          <ResumeUpload userId={session.user.id} currentResume={user?.resume} />
+          <ResumeUpload
+            userId={session.user.id}
+            currentResume={user?.resume ?? null}
+          />
         </div>
       </div>
     </main>

@@ -3,7 +3,16 @@ import { JobList } from "@/components/JobList";
 import { AdvancedFilters } from "@/components/AdvancedFilters";
 import prisma from "@/lib/prisma";
 
-async function searchJobs(filters: any) {
+interface JobFilters {
+  query?: string;
+  category?: string;
+  jobType?: string;
+  salaryMin?: string;
+  salaryMax?: string;
+  location?: string;
+}
+
+async function searchJobs(filters: JobFilters) {
   const { query, category, jobType, salaryMin, salaryMax, location } = filters;
 
   const jobs = await prisma.job.findMany({
@@ -25,8 +34,16 @@ async function searchJobs(filters: any) {
         },
         {
           AND: [
-            { salary: { gte: salaryMin ? parseInt(salaryMin) : undefined } },
-            { salary: { lte: salaryMax ? parseInt(salaryMax) : undefined } },
+            {
+              salary: {
+                gte: salaryMin ? parseInt(salaryMin).toString() : undefined,
+              },
+            },
+            {
+              salary: {
+                lte: salaryMax ? parseInt(salaryMax).toString() : undefined,
+              },
+            },
           ],
         },
       ],

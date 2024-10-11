@@ -39,13 +39,11 @@ export async function POST(request: Request) {
         email,
         password: hashedPassword,
         isAdmin: false, // Set default value
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
     });
 
     // Remove sensitive information from the response
-    const { password: _, ...userWithoutPassword } = newUser;
+    const { password: _password, ...userWithoutPassword } = newUser;
 
     return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {

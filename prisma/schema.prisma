@@ -21,6 +21,7 @@ model User {
   sessions      Session[]
   jobs          Job[]
   applications  Application[]
+  resume        String? 
 }
 
 model Account {

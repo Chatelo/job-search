@@ -12,6 +12,7 @@ export interface User {
   sessions: Session[];
   jobs: Job[];
   applications: Application[];
+  resume?: string;
 }
 
 export interface Account {

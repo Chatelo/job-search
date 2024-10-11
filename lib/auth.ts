@@ -43,7 +43,7 @@ export const authOptions: NextAuthOptions = {
         if (!isPasswordValid) {
           throw new Error("Invalid password");
         }
-
+        // TODO To fix the error, add the following code to the authorize function in the lib/auth.ts file:
         return user;
       },
     }),
@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        token.isAdmin = user.isAdmin;
+        token.isAdmin = (user as User).isAdmin;
       }
       return token;
     },
